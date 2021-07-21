@@ -5,13 +5,14 @@ for use.**
 
 This module enables Silverstripe CMS projects to use S/MIME when sending emails.
 This is not a plug-and-play solution, as it depends on the provisioning and
-configuration of a pair of SSL Certificates for encryption.
+configuration of a pair of keys for encrypting emails and optionally a pair of
+keys for signing emails.
 
 ## Requirements
 
-* Silverstripe CMS ^4.6
-* OpenSSL
-* Certificates to encrypt
+* Silverstripe CMS ^4.5
+* OpenSSL ^1.1.1
+* Key pairs for encrypting and signing messages
 
 ## Installation
 
