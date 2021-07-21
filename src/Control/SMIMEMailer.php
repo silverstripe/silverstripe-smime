@@ -23,7 +23,7 @@ class SMIMEMailer extends SwiftMailer
     ];
 
     /**
-     * @var array|null $encryptingCerts
+     * @var array|string|null $encryptingCerts
      */
     protected $encryptingCerts;
 
@@ -50,7 +50,9 @@ class SMIMEMailer extends SwiftMailer
     /**
      * SMIMEMailer constructor.
      *
-     * @param array|null $encryptingCerts Array of path to encrypting certificates (recipient)
+     * @param array|string|null $encryptingCerts String of a single path to an encrypting cert or array of paths to
+     *                                           encrypting certificates, array can be associative where the key is the
+     *                                           recipient email address matching the cert (recipient)
      * @param string|null $signingCert Path to signing certificate (sender)
      * @param string|null $signingKey Path to signing private key (sender)
      * @param string|null $signingKeyPassphrase Signing private key passphrase (sender)
@@ -59,7 +61,7 @@ class SMIMEMailer extends SwiftMailer
      * @return void
      */
     public function __construct(
-        ?array $encryptingCerts = null,
+        $encryptingCerts = null,
         ?string $signingCert = null,
         ?string $signingKey = null,
         ?string $signingKeyPassphrase = null,
@@ -97,12 +99,14 @@ class SMIMEMailer extends SwiftMailer
     /**
      * Sets the encryption certificates for this mailer.
      *
-     * @param array|null $encryptingCerts An associative array of certs
+     * @param array|string|null $encryptingCerts String of a single path to an encrypting cert or array of paths to
+     *                                           encrypting certificates, array can be associative where the key is the
+     *                                           recipient email address matching the cert (recipient)
      *
      * @return $this
      * @see Swift_Signers_SMimeSigner::setEncryptCertificate()
      */
-    public function setEncryptingCerts(?array $encryptingCerts = null): self
+    public function setEncryptingCerts($encryptingCerts = null): self
     {
         $this->encryptingCerts = $encryptingCerts;
         return $this;
@@ -159,12 +163,12 @@ class SMIMEMailer extends SwiftMailer
         // Create our S/MIME signer
         $sMimeSigner = new Swift_Signers_SMimeSigner();
 
-        // Add our certificate, key, and password.
+        // Add our signing certificate, key, and password
         if ($this->signingCert) {
             $sMimeSigner->setSignCertificate($this->signingCert, $this->signingKey);
         }
 
-        // Add our encryption certificate (the matching certificate to our local private key)
+        // Add our encrypting certificate
         if ($this->encryptingCerts) {
             $sMimeSigner->setEncryptCertificate($this->encryptingCerts);
         }
@@ -172,8 +176,10 @@ class SMIMEMailer extends SwiftMailer
         // Attach the signer to our message
         $swiftMessage->attachSigner($sMimeSigner);
 
+        // Send message, returns number of successful recipients
         $result = $this->sendSwift($swiftMessage, $failedRecipients);
 
+        // Register any failed recipients
         $message->setFailedRecipients($failedRecipients);
 
         // The 0 number of successful recipients indicates failure
