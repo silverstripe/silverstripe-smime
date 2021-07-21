@@ -3,7 +3,6 @@
 namespace SilverStripe\SMIME\Control;
 
 use SilverStripe\Control\Email\Email;
-use SilverStripe\Control\Email\Mailer;
 use SilverStripe\Control\Email\SwiftMailer;
 use Swift_Mailer;
 use Swift_Signers_SMimeSigner;
@@ -24,19 +23,19 @@ class SMIMEMailer extends SwiftMailer
     ];
 
     /**
-     * @var string|null $signCertificate
+     * @var array|null $encryptingCerts
      */
-    protected $signCertificate;
+    protected $encryptingCerts;
 
     /**
-     * @var array|null $signPrivateKey
+     * @var string|null $signingCert
      */
-    protected $signPrivateKey;
+    protected $signingCert;
 
     /**
-     * @var array|null $encryptCerts
+     * @var string|null $signingKey
      */
-    protected $encryptCerts;
+    protected $signingKey;
 
     /**
      * @var array|null $options
@@ -51,32 +50,30 @@ class SMIMEMailer extends SwiftMailer
     /**
      * SMIMEMailer constructor.
      *
-     * @param array|null $encryptCert Path to encrypt certificate (recipient)
-     * @param string|null $signCertificate Path to signing certificate (sender)
-     * @param string|null $signPrivateKey Path to private key
-     * @param string|null $signKeyPassphrase Private key passphrase
+     * @param array|null $encryptingCerts Array of path to encrypting certificates (recipient)
+     * @param string|null $signingCert Path to signing certificate (sender)
+     * @param string|null $signingKey Path to signing private key (sender)
+     * @param string|null $signingKeyPassphrase Signing private key passphrase (sender)
      * @param array $options
      *
      * @return void
      */
     public function __construct(
-        ?array $encryptCert = null,
-        ?string $signCertificate = null,
-        ?string $signPrivateKey = null,
-        ?string $signKeyPassphrase = null,
+        ?array $encryptingCerts = null,
+        ?string $signingCert = null,
+        ?string $signingKey = null,
+        ?string $signingKeyPassphrase = null,
         array $options = []
     )
     {
-        $this->setEncryptCerts($encryptCert);
-        $this->setSigningCert($signCertificate);
-        $this->setSigningPrivateKey(
-            $signPrivateKey,
-            $signKeyPassphrase
+        $this->setEncryptingCerts($encryptingCerts);
+        $this->setSigningCert($signingCert);
+        $this->setSigningKey(
+            $signingKey,
+            $signingKeyPassphrase
         );
-
         $this->setSwiftSignerOptions($options);
     }
-
 
     /**
      * Set options for Swift_Signers_SMimeSigner.
@@ -98,50 +95,50 @@ class SMIMEMailer extends SwiftMailer
     }
 
     /**
-     * Sets the encryption certificate for this mailer.
+     * Sets the encryption certificates for this mailer.
      *
-     * @param array|null $encryptCerts
+     * @param array|null $encryptingCerts An associative array of certs
      *
      * @return $this
+     * @see Swift_Signers_SMimeSigner::setEncryptCertificate()
      */
-    public function setEncryptCerts(?array $encryptCerts = null): self
+    public function setEncryptingCerts(?array $encryptingCerts = null): self
     {
-        $this->encryptCerts = $encryptCerts;
+        $this->encryptingCerts = $encryptingCerts;
         return $this;
     }
 
     /**
      * Sets the signing certificate for this mailer.
      *
-     * @param string|null $signCertificate
-     *
-     * @return $this
-     */
-    public function setSigningCert(?string $signCertificate = null): self
-    {
-        $this->signCertificate = $signCertificate;
-        return $this;
-    }
-
-    /**
-     * Sets the signing certificate for this mailer.
-     * Can be stored as array or string.
-     *
-     * @param string|null $signPrivateKey
-     * @param string|null $signKeyPassphrase
+     * @param string|null $signingCert
      *
      * @return $this
      * @see Swift_Signers_SMimeSigner::setSignCertificate()
-     *
      */
-    public function setSigningPrivateKey(?string $signPrivateKey = null, ?string $signKeyPassphrase = null): self
+    public function setSigningCert(?string $signingCert = null): self
     {
-        // Set passphrase to blank string if it is null
-        $passphrase = $signKeyPassphrase ?:  '';
+        $this->signingCert = $signingCert;
+        return $this;
+    }
+
+    /**
+     * Sets the signing key along with optional signing key passphrase for this mailer.
+     *
+     * @param string|null $signingKey
+     * @param string|null $signingKeyPassphrase
+     *
+     * @return $this
+     * @see Swift_Signers_SMimeSigner::setSignCertificate()
+     */
+    public function setSigningKey(?string $signingKey = null, ?string $signingKeyPassphrase = null): self
+    {
+        // Set passphrase to a blank string if it is null
+        $passphrase = $signingKeyPassphrase ?:  '';
 
         // Assign as array
-        $this->signPrivateKey = [
-            $signPrivateKey,
+        $this->signingKey = [
+            $signingKey,
             $passphrase
         ];
 
@@ -163,13 +160,13 @@ class SMIMEMailer extends SwiftMailer
         $sMimeSigner = new Swift_Signers_SMimeSigner();
 
         // Add our certificate, key, and password.
-        if ($this->signCertificate) {
-            $sMimeSigner->setSignCertificate($this->signCertificate, $this->signPrivateKey);
+        if ($this->signingCert) {
+            $sMimeSigner->setSignCertificate($this->signingCert, $this->signingKey);
         }
 
         // Add our encryption certificate (the matching certificate to our local private key)
-        if ($this->encryptCerts) {
-            $sMimeSigner->setEncryptCertificate($this->encryptCerts);
+        if ($this->encryptingCerts) {
+            $sMimeSigner->setEncryptCertificate($this->encryptingCerts);
         }
 
         // Attach the signer to our message
