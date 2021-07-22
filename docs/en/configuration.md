@@ -8,27 +8,39 @@ Generation of self-signed keys
 
 Certificates need to be PEM encoded in order to work with SwiftMailer / S/MIME.
 
-This documentation is based on [this post](https://www.dalesandro.net/create-self-signed-smime-certificates/), which specifically uses Windows, so there will be differences.
+This documentation is based on [this
+post](https://www.dalesandro.net/create-self-signed-smime-certificates/), which
+specifically uses Windows, so there will be differences.
 
-In either case, we will essentially be creating **two** key-pairs to use for signing and encrypting the email.
+In either case, we will essentially be creating **two** key-pairs to use for
+signing and encrypting the email.
 
-1.  One is the self-signed certificate and private key pair used for signing the email.
+1.  One is the self-signed certificate and private key pair used for signing the
+    email.
 
-    1.  This will be signed by our own self generated certificate authority (CA), which we will create the certificate and key for
+    1.  This will be signed by our own self generated certificate authority
+        (CA), which we will create the certificate and key for
 
-2.  The other is a self-signed certificate and private key pair used for encrypting the email.
+2.  The other is a self-signed certificate and private key pair used for
+    encrypting the email.
 
-    1.  This will be signed by our own self generated CA, which we will create the certificate and key for
-
-
-In both cases the process (which follows) to generate the key pair is the same. **In order to create 2 key pairs you need to run through these steps twice.** These steps can be carried out on:
-
-1.  the server or virtual machine which is sending the email, the key pair generated on this machine can be used to sign the email
-
-2.  the local or host machine which is receiving the email, the key pair generated on this machine can be used to encrypt the email
+    1.  This will be signed by our own self generated CA, which we will create
+        the certificate and key for
 
 
-During initial setup and testing, both key pairs can rest on the server, as encrypting and decrypting tests can be run via command line.
+In both cases the process (which follows) to generate the key pair is the same.
+**In order to create 2 key pairs you need to run through these steps twice.**
+These steps can be carried out on:
+
+1.  the server or virtual machine which is sending the email, the key pair
+    generated on this machine can be used to sign the email
+
+2.  the local or host machine which is receiving the email, the key pair
+    generated on this machine can be used to encrypt the email
+
+
+During initial setup and testing, both key pairs can rest on the server, as
+encrypting and decrypting tests can be run via command line.
 
 This section is intended for use only when testing.
 
@@ -78,11 +90,16 @@ subjectAltName = email:copy
 extendedKeyUsage = emailProtection
 ```
 
-Config file docs can be found here: [https://www.openssl.org/docs/man1.1.1/man5/config.html](https://www.openssl.org/docs/man1.1.1/man5/config.html)
+Config file docs can be found here:
+[https://www.openssl.org/docs/man1.1.1/man5/config.html](https://www.openssl.org/docs/man1.1.1/man5/config.html)
 
-Configuration file format for the `[req]` and associated `[req_distinguished_name]` sections above can be found here: [https://www.openssl.org/docs/man1.1.1/man1/openssl-req.html](https://www.openssl.org/docs/man1.1.1/man1/openssl-req.html).
+Configuration file format for the `[req]` and associated
+`[req_distinguished_name]` sections above can be found here:
+[https://www.openssl.org/docs/man1.1.1/man1/openssl-req.html](https://www.openssl.org/docs/man1.1.1/man1/openssl-req.html).
 
-Some relevant config file docs for the \[smime\] section can be found here: [https://www.openssl.org/docs/man1.1.1/man5/x509v3_config.html](https://www.openssl.org/docs/man1.1.1/man5/x509v3_config.html). The key configuration here is `extendedKeyUsage = emailProtection`.
+Some relevant config file docs for the \[smime\] section can be found here:
+[https://www.openssl.org/docs/man1.1.1/man5/x509v3_config.html](https://www.openssl.org/docs/man1.1.1/man5/x509v3_config.html).
+The key configuration here is `extendedKeyUsage = emailProtection`.
 
 Generate CA private key
 -----------------------
@@ -140,11 +157,13 @@ The certificate will contain the public key for the CA.
 
     *   typically to generate a test cert or self signed root CA
 
-    *   a large random number used for the serial number (unless set_serial option specified)
+    *   a large random number used for the serial number (unless set_serial
+        option specified)
 
 *   sha384
 
-    *   specifies the message digest (output of the sha384 hash function) to sign the request with
+    *   specifies the message digest (output of the sha384 hash function) to
+        sign the request with
 
     *   override the digest algo specified in the config file
 
@@ -154,7 +173,8 @@ The certificate will contain the public key for the CA.
 
 *   days
 
-    *   when x509 format used this specifies the number of days to certify the cert for, default is 30
+    *   when x509 format used this specifies the number of days to certify the
+        cert for, default is 30
 
 *   key
 
@@ -165,11 +185,13 @@ The certificate will contain the public key for the CA.
     *   output filename to write to, standard output by default
 
 
-We end up with ca.crt, a PEM encoded self signed cert for the CA in x.509 format.
+We end up with ca.crt, a PEM encoded self signed cert for the CA in x.509
+format.
 
 ### Example
 
-It can be useful to use different details when prompted for certificate information to keep track of the set up e.g:
+It can be useful to use different details when prompted for certificate
+information to keep track of the set up e.g:
 
 *   Server CA: Internal Test, Devops
 
@@ -197,7 +219,8 @@ Common Name (e.g: server FQDN or YOUR name) [Test]:client.local
 Email Address (e.g: your email address) []:ca@example.com
 ```
 
-We end up with ca.crt, which is the self signed cert in x.509 format. Let’s look at the contents:
+We end up with ca.crt, which is the self signed cert in x.509 format. Let’s look
+at the contents:
 ```
 openssl x509 -in ca.crt -noout -text
 Certificate:
@@ -228,7 +251,8 @@ Let's check if it is PEM encoded:
 
 `openssl x509 -inform PEM -in ca.crt -text -noout`
 
-If there is an error with the above command it might be that the file is DER encoded instead of PEM. Try viewing the file:
+If there is an error with the above command it might be that the file is DER
+encoded instead of PEM. Try viewing the file:
 
 `cat ca.crt`
 
@@ -236,7 +260,8 @@ A PEM encoded certificate:
 
 *   will likely be ASCII-readable
 
-*   it will have a line -----BEGIN CERTIFICATE-----, followed by base64-encoded data, followed by a line -----END CERTIFICATE-----
+*   it will have a line -----BEGIN CERTIFICATE-----, followed by base64-encoded
+    data, followed by a line -----END CERTIFICATE-----
 
 *   there may be other lines before or after
 
@@ -246,7 +271,8 @@ A PEM encoded certificate:
 Generate leaf private key
 -------------------------
 
-Generate the _Certificate_ private key, the private key of the key pair we wish to use directly, as opposed to the CA private key above.
+Generate the _Certificate_ private key, the private key of the key pair we wish
+to use directly, as opposed to the CA private key above.
 
 ### RSA
 
@@ -277,9 +303,11 @@ Generate the _Certificate_ private key, the private key of the key pair we wish 
 
 Enter a password of suitable strength when prompted.
 
-We end up with client-smime-<ENV>.key, a PEM encoded file which contains the private key of our key pair.
+We end up with client-smime-<ENV>.key, a PEM encoded file which contains the
+private key of our key pair.
 
-Can also check if this private key is PEM encoded, if there are no errors with the below command then it is:
+Can also check if this private key is PEM encoded, if there are no errors with
+the below command then it is:
 
 `openssl rsa -inform PEM -in client-smime-<ENV>.key -text -noout`
 
@@ -298,7 +326,8 @@ Generate leaf certificate signing request
 
 *   config
 
-    *   allow alt config file to be specified to override compile time filename or OPENSSL_CONF env var
+    *   allow alt config file to be specified to override compile time filename
+        or OPENSSL_CONF env var
 
 *   new
 
@@ -361,11 +390,13 @@ Generate leaf certificate
 
 *   req
 
-    *   a certificate signing request is expected as input, instead of the default which is to expect a certificate as input
+    *   a certificate signing request is expected as input, instead of the
+        default which is to expect a certificate as input
 
 *   in
 
-    *   input filename to read certificate or csr from, default is standard input
+    *   input filename to read certificate or csr from, default is standard
+        input
 
 *   CA
 
@@ -373,7 +404,8 @@ Generate leaf certificate
 
     *   with this option x509 acts like a CA
 
-    *   input file is signed by this CA, its issuer name is set to the subject name of the CA and it is digitally signed using the CAs private key
+    *   input file is signed by this CA, its issuer name is set to the subject
+        name of the CA and it is digitally signed using the CAs private key
 
     *   usually used with req option
 
@@ -381,7 +413,8 @@ Generate leaf certificate
 
     *   set the CA private key to sign the cert with
 
-    *   if option is not present, CA private key assumed to be within the CA certificate file
+    *   if option is not present, CA private key assumed to be within the CA
+        certificate file
 
 *   CAcreateserial
 
@@ -391,14 +424,16 @@ Generate leaf certificate
 
     *   the cert being signed will have it as its serial number
 
-    *   if CA option is specified and the serial number file does not exist it is an error
+    *   if CA option is specified and the serial number file does not exist it
+        is an error
 
 *   out
 
     *   output filename to write to or standard output by default
 
 
-We end up with ca.srl, a file containing a serial number, and client-smime-<ENV>.crt our PEM encoded, x.509 format certificate.
+We end up with ca.srl, a file containing a serial number, and
+client-smime-<ENV>.crt our PEM encoded, x.509 format certificate.
 
 ### Example
 
@@ -440,7 +475,11 @@ cat ca.srl
 Summary
 -------
 
-We have generated a public/private key pair for our own certificate authority (CA). We have generated a public/private key pair for application use, which is signed by the private key of the CA above. Our public keys are stored in x.509 formatted, PEM encoded certificates. We can now provide our public keys to third parties.
+We have generated a public/private key pair for our own certificate authority
+(CA). We have generated a public/private key pair for application use, which is
+signed by the private key of the CA above. Our public keys are stored in x.509
+formatted, PEM encoded certificates. We can now provide our public keys to third
+parties.
 
 You should end up with these files
 
@@ -458,11 +497,15 @@ You should end up with these files
 Next steps
 ----------
 
-We can use the key pair we have generated and signed, for encrypting or signing SMIME messages. In order to provide the keypair to Microsoft Outlook it can be useful to bundle everything into a `.p12` archive for importing into outlook.
+We can use the key pair we have generated and signed, for encrypting or signing
+SMIME messages. In order to provide the keypair to Microsoft Outlook it can be
+useful to bundle everything into a `.p12` archive for importing into outlook.
 
 ### Bundle into p12
 
-PKCS #12 defines an archive file format for storing many cryptography objects as a single file. It is commonly used to bundle a private key with its X.509 certificate or to bundle all the members of a chain of trust.
+PKCS #12 defines an archive file format for storing many cryptography objects as
+a single file. It is commonly used to bundle a private key with its X.509
+certificate or to bundle all the members of a chain of trust.
 
 `openssl pkcs12 -export -in client-smime-<ENV>.crt -inkey client-smime-<ENV>.key -out client-smime-<ENV>.p12`
 
@@ -470,7 +513,8 @@ PKCS #12 defines an archive file format for storing many cryptography objects as
 
 *   pkcs12
 
-    *   pkcs12 command allows PKCS#12 files (sometimes referred to as PFX files) to be created and parsed
+    *   pkcs12 command allows PKCS#12 files (sometimes referred to as PFX files)
+        to be created and parsed
 
     *   these files are used by several programs such as Microsoft Outlook
 
@@ -497,20 +541,22 @@ PKCS #12 defines an archive file format for storing many cryptography objects as
     *   filename to write the PKCS#12 file to
 
 
-Once again you’ll be prompted for passwords, or which you can use an appropriate string.
+Once again you’ll be prompted for passwords, or which you can use an appropriate
+string.
 ```
 Enter pass phrase for smime_test_user.key:
 Enter Export Password:
 Verifying - Enter Export Password:
 ```
 
-That’s it! You now have a bunch of keys and certificates. The `.p12` bundle is for use with your email client.
+That’s it! You now have a bunch of keys and certificates. The `.p12` bundle is
+for use with your email client.
 
 # Instantiating Mailer
 
-Store the encryption cert and any signing certs and keys somewhere secure on the server.
-Commonly we can provide the paths to the application via Environment variables, which
-facilitates using different files per environment.
+Store the encryption cert and any signing certs and keys somewhere secure on the
+server. Commonly we can provide the paths to the application via Environment
+variables, which facilitates using different files per environment.
 
 ```conf
 # SMIME CONFIGURATION
@@ -522,7 +568,8 @@ SS_SMIME_SIGN_KEY="/var/www/secure/client-smime-local.key" # Signing key locatio
 SS_SMIME_SIGN_PASS="password" # Signing key passphrase, optional
 ```
 
-Then instantiate the mailer in the Controller where an Email is created and sent.
+Then instantiate the mailer in the Controller where an Email is created and
+sent.
 
 ```php
 // Create email
