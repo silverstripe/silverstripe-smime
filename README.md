@@ -1,8 +1,5 @@
 # Silverstripe S/MIME
 
-**NOTE: This module is currently under active development, and is not yet ready
-for use.**
-
 This module enables Silverstripe CMS projects to use S/MIME when sending emails.
 This is not a plug-and-play solution, as it depends on the provisioning and
 configuration of a pair of keys for encrypting emails and optionally a pair of

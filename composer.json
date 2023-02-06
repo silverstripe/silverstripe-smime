@@ -10,7 +10,10 @@
     ],
     "license": "BSD-3-Clause",
     "require": {
-        "silverstripe/framework": "^4.9"
+        "php": "^8.0 || ^8.1",
+        "silverstripe/framework": "^4.9",
+        "ext-openssl": "*",
+        "silverstripe/cms": "^4.11"
     },
     "authors": [
         {
@@ -20,11 +23,16 @@
         {
             "name": "Danae Miller-Clendon",
             "email": "danae.millerclendon@silverstripe.com"
+        },
+        {
+            "name": "Andrew Dunn",
+            "email": "andrew.dunn@silverstripe.com"
         }
     ],
     "require-dev": {
-        "sminnee/phpunit": "^5.7",
-        "squizlabs/php_codesniffer": "^3.0"
+        "squizlabs/php_codesniffer": "^3.0",
+        "phpunit/phpunit": "^9.5",
+        "slevomat/coding-standard": "^8.8"
     },
     "autoload": {
         "psr-4": {
@@ -33,5 +41,12 @@
         }
     },
     "minimum-stability": "dev",
-    "prefer-stable": true
+    "prefer-stable": true,
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true,
+            "silverstripe/vendor-plugin": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
 }
